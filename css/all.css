@@ -1,0 +1,471 @@
+body,h1,h2,h3,h4,h5,h6,hr,p,blockquote,dl,dt,dd,ul,ol,li,pre,fieldset,button,input,textarea,th,td{margin:0;padding:0;-webkit-tap-highlight-color:transparent;}article,aside,canvas,details,figcaption,figure,footer,header,menu,nav,section,summary{display:block}html,body{height:100%;-webkit-text-size-adjust:none;text-size-adjust:none}body,button,input,select,textarea{font:16px/1.2 \5FAE\8F6F\96C5\9ED1,Tahoma,Helvetica,Arial,"\5b8b\4f53",sans-serif}h1{font-size:18px}h2{font-size:16px}h3{font-size:14px}h4,h5,h6{font-size:100%}address,cite,dfn,em,var{font-style:normal}code,kbd,pre,samp,tt{font-family:"Courier New",Courier,monospace}small{font-size:12px}ul,ol,li{list-style:none}a{text-decoration:none}a:hover{text-decoration:underline}abbr[title],acronym[title]{border-bottom:1px dotted;cursor:help}q:before,q:after{content:''}legend{color:#000}fieldset,img{border:0}button,input,select,textarea{font-size:100%}table{border-collapse:collapse;border-spacing:0}hr{border:0;height:1px}html{overflow-y:scroll}.clearfix:after{content:".";display:block;clear:both;visibility:hidden;line-height:0;height:0}.clearfix{*zoom:1}.block{display:block}
+body{ background: #efeff4 }a:hover{text-decoration: none}.clear{clear: both}input[type="text"]{-webkit-appearance:none;-webkit-border-radius: 0;border-radius:0;outline:none}
+.absolute {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 3;
+}
+.header{
+    position: absolute;width: 100%; z-index: 100; top:45px
+}
+.header h1 {
+    font-weight: 200;
+    color: #545454;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    text-shadow: 1px 1px 1px #f4f4f4;
+}
+
+.header h1.controlTitle {
+    color: #fff;
+    position: relative;
+    background-color: #242425;
+/*    text-shadow: 1px 1px 1px rgba(0, 0, 0, .4);
+    box-shadow: 0 1px #4e494d, inset 0 -1px 1px rgba(0, 0, 0, .33);
+    background-color: #333434;*/
+}
+
+.header h1 .text {
+    margin: 0 90px;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+
+.header h1 .text i {
+    width: 12px;
+    height: 6px;
+    background: url(../img/arrow_down.png) no-repeat;
+    background-size: contain;
+    margin-left: 4px;
+    position: relative;
+    top: -2px;
+    display: inline-block;
+}
+
+
+.controller {
+    width: 94%;left: 3%;
+    top: 95px;
+    position: absolute;
+    bottom: 75px;
+    background:url(../img/panel.png) no-repeat center #242425;
+    background-size: contain;
+}
+
+.footer {
+    width: 100%;
+    overflow: hidden;
+    position: absolute;
+    height: 75px;
+    bottom: 0;
+    z-index: 30;
+    background-color: #242425;text-align: center;
+}
+
+.footer div{
+    width: 45px; height: 45px;display: inline-block; margin-top: 15px;
+}
+.footer div i{ width: 45px; height: 45px;
+    background: url("../img/conter2.png") no-repeat;
+    background-size:60px 360px ;
+    display: block;
+}
+.footer .back{margin-left: 15%; margin-right: 15%;}
+.footer .home i{
+    background-position: -8px -12px;
+}
+.footer .back i{
+    background-position: -8px -112px;
+}
+.footer .menu i{
+    background-position: -8px -221px;
+}
+.footer .home .on{
+    background-position: -8px -58px;
+}
+.footer .back .on{
+    background-position: -8px -171px;
+}
+.footer .menu .on{
+    background-position: -8px -263px;
+}
+
+.touchArea {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+}
+
+.pointer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: url('../img/pointer.png') no-repeat;
+    background-size: 100% 100%;
+    width: 100px;
+    height: 100px;
+    display: none;
+    z-index: 1;
+}
+
+.Arrow {
+     -moz-opacity:0.5;
+     -khtml-opacity:0.5;
+     opacity: 0;
+     z-index: 1;
+}
+
+.arrowLeft, .arrowRight, .arrowUp, .arrowDown {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+.arrowLeft {
+    float: left;
+    background: url("../img/arrow-left.png") center center no-repeat;
+    background-size: 188px 120px;
+}
+
+.arrowRight {
+    float: right;
+    background: url("../img/arrow-right.png") center center no-repeat;
+    background-size: 188px 120px;
+}
+
+.arrowUp {
+    background: url("../img/arrow-top.png") center center no-repeat;
+    background-size: 120px 188px;
+}
+
+.arrowDown {
+    background: url("../img/arrow-bottom.png") center center no-repeat;
+    background-size: 120px 188px;
+}
+
+
+.prompt {
+    width: 80%;
+    min-width: 256px;
+    left: 10%;
+    top: 60px;
+    position: fixed;
+    z-index: 101;
+    border-radius: 4px;
+    box-shadow: 2px 2px 8px #000;
+    background: #1d1d1d;
+    color: #fff;
+    border: 1px  solid #303030;
+
+}
+.prompt .title {
+    padding: 15px 0 10px 0;
+    font-size: 16px;
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+    border-bottom: 1px solid #ccc;
+}
+
+.prompt .content {
+    padding: 10px 0;
+    width: 82%;
+    margin: 0 auto;
+    line-height: 20px;
+    font-size: 14px;
+}
+.prompt .pin{position: relative}
+
+.pin .close {
+    width: 25px;
+    height: 25px;
+    position: absolute;
+    top: -48px;
+    right: -18px;
+    background: url(../img/close_icon.png) no-repeat;
+    background-size: contain;
+    text-indent: -9999px;
+    display: block;
+    overflow: hidden;
+}
+.pin .button {
+    width: 100%;
+    margin-top: 12px;
+    margin-bottom: 5px;
+    overflow: hidden;
+}
+
+.pin input[type="text"] {
+    border: 1px solid #8c8a8a;
+    height: 22px;
+    line-height: 22px;
+    box-shadow: 0 0 5px rgba(0, 0, 0, .1);
+    width: 100%;padding: 2px 0;
+    text-indent: 5px;
+}
+.pin .button a {
+    display: block;
+    padding: 5px 0;
+    float: left;
+    width: 47%;
+    text-align: center;
+    height: 22px;
+    line-height: 22px;
+    color: #eef0f8;
+    border: 1px solid #f7a038;
+
+}
+
+.pin .button a.cancel {
+    background: #292929;
+    margin-left: 4%;
+}
+
+.pin .button a.join {
+    background: #f7a038;
+}
+.pin .warm {
+    padding: 0;
+    margin-bottom: 5px;
+    line-height: 20px;
+    position: relative;
+}
+.pin .warm span {
+    position: absolute;
+    left: -12px;
+    top: 3px;
+}
+
+.pin .sure {
+    color: #f6f6f6;
+    padding-top: 5px;
+    clear: both;
+}
+.pin .postion{
+    width: 150px;height: 84px;
+    background: url("../img/pin-postion.png") no-repeat;
+    background-size: contain;
+    margin: 0 auto;
+}
+.pin .sure span {
+    width: 5px;
+    height: 5px;
+    border-radius: 5px;
+    background: #f6f6f6;
+    float: left;
+    margin: 10px 5px 0 0;
+    overflow: hidden;
+}
+
+.pin .sure_jc {
+    color: #f6f6f6;
+    padding-top: 10px;
+    clear: both;
+}
+
+.pin .sure_jc span {
+    width: 5px;
+    height: 5px;
+    border-radius: 5px;
+    background: #f6f6f6;
+    float: left;
+    margin: 10px 5px 0 0;
+    overflow: hidden;
+}
+
+.pin .scanQRCode{ height: 35px; line-height: 35px; text-align: center;
+    color: #fff; font-size: 16px; background: #FFC809; width: 80%; margin: 0 auto;
+    margin-top: 8px; margin-bottom: 8px; z-index: 100;
+}
+
+h2.title{ text-align: center; height: 38px; line-height: 38px;}
+h2.special{ background: #ddd}
+
+.altMsg{width: 80%; padding: 15px 0;  position: absolute;
+    left: 50%; margin-left: -40%;  margin-top: -20px; z-index: 1000;
+    background: #4e4e4e;  line-height: 25px; color: #fff; text-align: center;
+    border-radius: 5px; -moz-border-radius:5px; -webkit-border-radius: 5px;
+}
+.bannerline{height: 3px;background: url("../img/line.png") repeat-x ; background-size: contain}
+
+
+
+
+.app{padding: 2%;}
+.app ul{}
+.app ul li{ float: left; width: 49%; height: 140px; max-width: 200px;  overflow: hidden;
+    background: #DEDEDE; text-align: center; margin-top: 10px; color: #4C4C4C;
+}
+.app ul li:nth-child(even){ margin-left: 2%;}
+.app ul li a{ display: block; margin-top: 10px;}
+.app ul li img{width: 80%; max-height: 100px; max-width: 100px;}
+.app ul li p{ text-overflow:ellipsis; overflow:hidden; white-space:nowrap}
+.app h2{font-weight: normal; color: #FF9347; text-align: center; padding-top: 5px;}
+.app .num{text-align: right; padding-right: 10px; font-size: 13px; padding-top: 5px;color: #858585}
+.appDetail{padding:20px 20px 50px 20px; background: #efeff4;}
+.appDetail .img{float: left; width: 40%}
+.appDetail .img img{width: 100%;}
+.appDetail .info{float: left;width: 50%; margin-left: 10px; line-height: 25px; color: #999}
+.appDetail .info strong{ font-size: 18px; font-weight: 200; color: #444;
+    display: block; padding-bottom: 5px; text-overflow: ellipsis; overflow: hidden;white-space: nowrap;
+}
+.appDetail .info li{overflow: hidden; text-overflow:ellipsis; white-space: nowrap }
+.appDetail .install{text-align: center; margin-top: 30px; position: relative; padding: 0px; /*border: 1px solid #b0afaf*/}
+.appDetail .install div{  height: 40px; background: #0dbe00; line-height: 40px;
+    text-align: center; font-size: 18px; color: #fff;
+}
+.appDetail .install span{position: absolute;text-align: center; color: #333; left: 0; width: 100%}
+.appDetail .content{color: #999; padding-top: 10px; line-height: 22px; font-size: 14px;}
+
+.fixed_head{height: 40px; line-height: 40px; position: fixed; left: 0; width: 100%; top: 0; background: #3b3f41; z-index: 100; text-align: center}
+.fixed_head .return{ width: 18px; height: 25px; position: absolute; left: 10px; top: 7px;
+    background: url("../img/arror.png") no-repeat ;background-size: contain}
+.fixed_head h1{ color: #fff; font-weight: normal; font-size: 16px;}
+.applist{padding-bottom: 50px; padding-top:10px; background: #efeff4}
+.applist ul{ padding: 0 10px;}
+.applist ul li{ height: 125px; border-bottom: 1px solid #d4d4d8;border-top: 1px solid #d4d4d8}
+.applist ul li:first-child{border-top: 1px solid #e5e5e5 }
+.applist ul li .img{float: left; width: 90px; text-align: center; margin-top:10px;}
+.applist ul li .img img{width: 85px; height: 85px; margin-top: 5px;}
+.applist ul li .info{float: left; width: 40%; margin-top:10px; margin-left: 5px;}
+.applist ul li .info a{color: #000}
+.applist ul li .info h2{ padding: 8px 0 5px 0; height: 22px;white-space:nowrap; overflow: hidden;text-overflow: ellipsis}
+.applist ul li .info p{color: #858585; line-height: 20px; font-size: 14px;}
+.applist ul li .install{float: right; width: 25%; margin-right: 10px; text-align: center}
+.applist ul li .install .out{
+    width: 100%; position: relative;
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;/*background: #fff*/;
+    margin-top: 35px; height: 40px; line-height: 40px;
+    border: 1px solid #0dbe00; font-size: 14px;
+    -webkit-border-radius: 3px; -moz-border-radius: 3px;
+    border-radius: 3px;
+}
+
+.applist ul li .install .innerProgress{
+    position: absolute; left: 0; top: 0;
+    height: 40px; width: 0; /*background: #efeff4*/;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    -webkit-border-radius: 3px; -moz-border-radius: 3px;
+    border-radius: 3px;
+    /*border: 1px solid #fff;*/
+}
+
+.applist ul li .text{
+    display: block; position: absolute; width: 100%; text-align: center;
+}
+.applist ul li .text img{margin-top: 3px;}
+
+.fixed_footer{
+    position: fixed; bottom:5px; left: 5%; min-height: 35px; width: 90%;
+    border: 1px solid #ccc; z-index: 101;
+    -webkit-border-radius: 5px; -moz-border-radius: 5px; border-radius: 5px;
+    background: #f6f6f6}
+
+.fixed_footer .blind,.fixed_footer .addNewDevice,.fixed_footer #blindDevice{ line-height: 40px; text-align: center}
+.fixed_footer ul li{ height: 35px; line-height: 35px; padding: 0 10px;}
+.fixed_footer .remove{ margin-left: 10px;font-size: 20px;}
+.fixed_footer .remove em{color: #ff0000}
+.fixed_footer li .current{float: right; font-size: 12px; color: #888}
+.addVolume{position: absolute; right: 20%; top:10px; }
+.decVolume{position: absolute; left: 20%; top:10px;}
+.controlTitle i{
+    display: block;  width: 50px; height: 35px;text-indent: -9999px;
+    background: url("../img/control.png") no-repeat;background-size: 50px 313px;
+}
+.addVolume i{background-position: -1px -95px }
+.addVolume i.on{background-position: -1px -145px }
+.decVolume i{background-position: 0px -5px }
+.decVolume i.on{background-position: 0 -51px }
+.paneltop{position: absolute; width: 100%; top: 0; height: 45px; z-index: 111;
+    background: url("../img/paneltop.gif") repeat-x center;
+    box-shadow: 2px 1px 2px #000 ;
+}
+.paneltop .deviceName{ float: left;line-height: 40px; text-indent: 8px;}
+.paneltop .deviceName em{text-decoration: underline;padding-left: 2px;}
+.deviceList{
+    position: relative;height: 36px; color: #fff; text-align: center; width: 50%; left: 25%;
+    border: 1px solid #1b1b1b; margin-top: 3px;
+    border-radius: 3px; -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+}
+.selectDevice{text-align: center; display: inline-block}
+.deviceList span{line-height: 34px;}
+.deviceList ul{position: absolute; width: 98%; top: 43px;background: #1F1F1F;border: 1px solid #faa136}
+.deviceList ul li{height: 34px; line-height: 34px; font-size: 15px;overflow: hidden;border-bottom: 1px solid #ccc}
+.deviceList ul li:last-child{border-bottom: 1px solid #3E4041}
+.deviceList ul li em{ color: #ff0000;}
+.deviceList ul li span{line-height: 34px;}
+.deviceList ul li span.deviceOName{ white-space:nowrap;text-overflow:ellipsis;overflow: hidden}
+.deviceList ul li span.remove{font-size: 18px; margin-left: 2px;}
+.darrow{
+    width: 12px;
+    height: 6px;
+    background: url(../img/arrow_down.png) no-repeat;
+    background-size: 100% 100%;
+    margin-left: 5px;
+    position: relative;
+    top: -2px;
+    display: inline-block;
+}
+.darrow_down{
+    width: 20px; height: 15px;
+    background: url(../img/up.png) no-repeat;
+    background-size: contain;
+    position: absolute; top: 30px;
+    display: inline-block;
+    left: 50%;margin-left: -10px;
+    z-index: 10;
+
+}
+.icon-device{ display: inline-block; background: url("../img/control.png") no-repeat;
+    background-size: 50px 313px; width: 25px; height: 25px;
+    background-position:-10px -203px;
+    position: relative; top: 7px;
+    margin-right: 4px;
+}
+.insideList{border: 1px solid #3b3b3b; border-radius: 3px}
+
+.unconnect {
+    color: #ff0000;
+}
+.gradient{
+    height: 8px;margin-top: 41px;
+    background-image: -moz-linear-gradient(top, #ccc, #ddd);
+    background-image: -webkit-gradient(linear, center top, center bottom, from(#ccc), to(#ddd));
+    background-image: -webkit-linear-gradient(top, #ccc, #ddd);
+    background-image: linear-gradient(top, #ccc, #ddd);
+}
+
+
+@media screen and (min-width: 360px) {
+    .controller{
+        bottom: 110px;
+    }
+    .footer {
+        height: 110px;
+    }
+    .header{
+        top:55px
+    }
+}
+
+@media screen and (min-width: 375px) {
+
+}
+
+@media (device-width:375px) and (-webkit-min-device-pixel-ratio:2){/* 兼容iphone 6 */
+
+}
+@media (device-width:414px) and (-webkit-min-device-pixel-ratio:3.0){/* 兼容iphone6 plus */
+
+}

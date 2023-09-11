@@ -1,0 +1,633 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+    <meta content="text/html;charset=UTF-8" http-equiv="Content-Type">
+    <meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <title>应用推荐列表</title>
+    <link rel="stylesheet" href="css/all.css">
+    <script src="js/lib/zepto.min.js"></script>
+    <script src="js/lib/fastclick.js"></script>
+    <script src='js/skyutil.js'></script>
+
+    <style type="text/css">
+        .title {
+            margin: 0 auto;
+            text-align: center;
+            position: absolute;
+            width: 100%;
+            left: 0%;
+            color: #3a9bff
+        }
+
+        .btn {
+            position: relative;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            background: transparent;
+            border: 1px solid #ff7d26;
+            color: #ff7d26;
+            font-size: 14px;
+            line-height: 40px;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 3px;
+            width: 40px
+        }
+
+        .solidbtn {
+            position: relative;
+            font-size: 14px;
+            line-height: 40px;
+            -webkit-border-radius: 3px;
+            -moz-border-radius: 3px;
+            border-radius: 3px;
+            width: 40px;
+            color: #008cd0;
+            background: white;
+            border: 0px;
+        }
+
+        .Absolute-Center {
+            margin: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            text-align: center;
+        }
+    </style>
+
+    <script language="JavaScript">
+        var openidVar;
+        var appidVar;
+        var isBoxExisted = false; //盒子是否绑定了当前设备,默认为false
+        var debug = skyutil.getParamOfdebug();
+
+        var u = navigator.userAgent;
+        var isAndroid = u.indexOf('Android') > -1 || u.indexOf('Adr') > -1; //android终端
+        var isiOS = !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/); //ios终端
+        showAppListPage();
+        getList(); //展现app列表，并绑定按钮click事件
+
+        //已输入过，直接连接
+        var boxip = getCookie("boxip");
+        if (boxip != null) {
+            init();
+        }
+
+        boxip = getUrlParam('boxip');
+        if (boxip != null) {
+            init();
+            tryConnectBox(boxip);
+        }
+
+        function initPage2() {
+            hideAllPage();
+            $("#initPage2").show();
+        }
+
+        function initPage3() {
+            hideAllPage();
+            $("#initPage3").show();
+        }
+
+        function showResetPage() {
+            if (!isBoxExisted) {
+                hideAllPage();
+                $("#resetPage").show();
+            }
+        }
+
+        function hideResetPage() {
+            hideAllPage();
+            $("#initPage").show();
+        }
+
+        function showAppListPage() {
+            hideAllPage();
+            $("#applistPage").show();
+        }
+
+
+        function init() {
+            tryConnectBox(boxip);
+            needSearch = false;
+            showManualConnectPage();
+            getBoxInfo();  //根据appID,openID获取盒子信息,如果找到盒子，设定isBoxExisted=true(表示用户的设备已经绑定到了盒子)
+            FastClick.attach(document.body);
+            //15秒后未找到盒子，弹出手动输入框
+            //setTimeout("showManualConnectPage()", 15000);
+        }
+
+        function getBoxInfo() {
+            skyutil.getlocalurl(scanBox);
+        }
+
+        var allArray = new Array();
+        var ipheader;
+
+        function scanBox(ip) {
+            iparray = ip.split('.');
+            ipheader = iparray[0].toString() + '.' + iparray[1].toString() + '.' + iparray[2].toString() + '.'
+
+            $("#inputip").val(ipheader);
+            var phoneIp = iparray[3];
+            if (iparray.length == 4) {
+                for (var i = 1; i < 254; i++) {
+                    phoneIp = parseInt(phoneIp);
+                    if (phoneIp - i > 1) {
+                        allArray.push(phoneIp - i);
+                    }
+                    if (phoneIp + i < 255) {
+                        allArray.push(phoneIp + i);
+                    }
+                }
+                searchBox();
+            } else {
+                //TODO
+            }
+        }
+
+        var count = 0;
+        var ipindex = 0;
+        // no search
+        var needSearch = false;
+
+        function searchBox() {
+            if (!needSearch) {
+                return;
+            }
+            for (; ipindex < allArray.length && count < 10; ipindex++ , count++) {
+                var now = allArray[ipindex];
+                var boxip = ipheader + now.toString();
+                tryConnectBox(boxip);
+            }
+
+            if (!isBoxExisted) {
+                //未找到继续找
+                setTimeout("searchBox()", 5000);
+            } else {
+                console.log("found!stop search!");
+            }
+        }
+
+        function keepConnect() {
+            skyutil.callback = function () {
+                //console.log("keepConnect success!");
+                $("#title").text("已连接" + skyutil.data.box.name + "-" + skyutil.data.box.ip);
+            };
+            skyutil.keepConnect();
+        }
+
+
+        function getList() {
+            var debug = skyutil.getParamOfdebug();
+            //console.log("debug : " + debug);
+            var tempUrl = skyutil.getserver() + "/weixin-manager/api/ottMaster/proxyRequest?proxyUrl=http%3a%2f%2fstore.skyworthbox.com%2fappstore%2fapi%2fobtainOttMasterApps";
+
+            skyutil.doget(tempUrl, "", function (result) {
+                processXML(result.data);
+            }, function () {
+                console.log("failed retry");
+                setTimeout("getList()", 2000);
+            });
+        }
+
+        function processXML(xmlstr) {
+            console.log("processXML : " + xmlstr);
+            var xml = skyutil.parseXmlStrToObj(xmlstr);
+            //SkyUtils.removeLoadMask()
+            var total = $(xml).find('total').text()
+            var buff = [];
+            $(xml).find('item').each(function (index, file) {
+                var that = $(this);
+                var md5 = that.find('md5').text();
+                var versionCode = that.find('versionCode').text();
+                var packageName = that.find('packageName').text();
+                var appName = that.find('appName').text();
+                var picUrl = that.find('picUrl').text();
+                var appId = that.find('appId').text();
+                var appUrl = that.find('appUrl').text();
+                var versionName = that.find('versionName').text();
+                var shortDescription = that.find('shortDescription').text()
+                var appSizeBen = that.find('appSize').text();
+                var appSize = (that.find('appSize').text() / 1048576).toString();
+                appSize = appSize.indexOf(".") ? new Number(appSize).toFixed(1) : appSize;
+                var item = '<li><div class="img">' +
+                    '<img src="' + picUrl + '"></div>' +
+                    '<div class="info">' +
+                    '<h2><font color="#4e4e4e">' + appName + '</font></h2><p><font color="#656565">大小：' + appSize + 'M</font></p><p style="display:none" id="v_' + appId + '">' + versionName + '</p><p><font color="#656565">'
+                    + shortDescription + '</font></p></div>' +
+                    '<div class="install"><div class="out" id="div_out_' + appId + '"><div class="innerProgress" style="width: 0" id="' + appId + '"></div>' +
+                    '<span class="text" appId="' + appId
+                    + '" versionName="' + versionName + '" appName="' + appName + '" md5="' + md5
+                    + '" versionCode="' + versionCode + '" packageName="' + packageName
+                    + '" picUrl="' + picUrl + '" appSize="' + appSizeBen
+                    + '" appUrl="' + appUrl + '?"><font color="#0dbe00">启动</font></span></div></div></li>'
+                buff.push(item)
+            })
+            //$('#applist').html(buff.join(''));
+            $("#applist").append(buff.join(''));
+            setInterval("getAppStasus()", 1000);
+
+            addClickListener();
+        }
+        ;
+
+        function processAppListStatus(data) {
+            //skyutil.printlnObj(data);
+            ////console.log("processAppListStatus data : " + data);
+            ////init
+            $(".text").each(function (i) {
+                $(this).html("<font color='#0dbe00'>启动</font>");
+            });
+            $(".innerProgress").each(function (i) {
+                $(this).css("width", "0%");
+            });
+            ////update status
+            var list = data, length = list.length;
+            for (var i = 0; i < length; i++) {
+                console.log("processAppListStatus list[i] : " + list[i]);
+                //skyutil.printlnObj(list[i]);
+                if (list[i].status == 1) {
+                    var vname = $("#v_" + list[i].appId).html();
+                    ////console.log("processAppListStatus vname : " + vname);
+                    if (list[i].versionName != vname) {
+                        $("#" + list[i].appId).next().text("更新")
+                    } else {
+                        $("#" + list[i].appId).next().text("打开")//已启动
+                        $("#" + list[i].appId).css("background", "#ffffff")
+                    }
+                    $("#" + list[i].appId).css("width", "100%")
+                    $("#div_out_" + list[i].appId).css("border", "1px solid #d4d4d8")
+                }
+                if (list[i].status == 2) {
+                    $("#" + list[i].appId).next().text("启动失败")
+                    $("#div_out_" + list[i].appId).css("border", "1px solid #d4d4d8")
+                }
+                if (list[i].status == 3) {
+                    $("#" + list[i].appId).next().text("等待启动")
+                    $("#div_out_" + list[i].appId).css("border", "1px solid #d4d4d8")
+                }
+                if (list[i].status == 4) {
+                    $("#" + list[i].appId).next().text(list[i].progress + "%")
+                    $("#" + list[i].appId).css("width", list[i].progress + "%")
+                    $("#" + list[i].appId).css("background", "#0dbe00")
+                    $("#div_out_" + list[i].appId).css("border", "1px solid #0dbe00")
+                }
+            }
+        }
+        ;
+
+        function getAppStasus() {
+            //console.log("getAppStasus");
+            //var cookie = SkyUtils.getCurrentBoxCookie();
+            if (isBoxExisted == true && skyutil.isconnectedToBox == true) {
+                var url = skyutil.getBoxUrlHeader() + 'query_apk';
+                skyutil.doget(url, "", function (result) {
+                    processAppListStatus(result);
+                });
+            }
+        }
+
+        function getfiexdTop(height) {
+            var scrollTop = $(window).scrollTop();
+            return height + scrollTop;
+        }
+
+        function alertMsg(msg) {
+            var msgDiv = '<div class="altMsg" id="altMsg" style="top:' + getfiexdTop(50) + 'px">' + msg + '</div>';
+            $("body").append(msgDiv);
+            setTimeout(function () {
+                $("#altMsg").remove();
+            }, 1500)
+        }
+
+        function addClickListener() {
+            $("#applist").on("click", '.text', function () {
+                var text = $(this).text();
+                var appId = $(this).attr("appId");
+
+                if (text == "启动" && isBoxExisted != true) {
+                    hideResetPage();
+                    return;
+                }
+
+                if (text == "启动" || text == '打开' || text == '更新' || text == '启动失败') {
+                    if (!skyutil.isconnectedToBox) {
+                        //SkyUtils.showPin();
+                        skyutil.connect();
+                        return;
+                    }
+                    //var cookie = SkyUtils.getCurrentBoxCookie();
+                    var that = $(this);
+
+                    var url = skyutil.getBoxUrlHeader() + 'install_apk?appId=' + $(this).attr("appId") +
+                        '&packageName=' + $(this).attr("packageName") +
+                        '&appName=' + $(this).attr("appName") +
+                        '&versionName=' + $(this).attr("versionName") +
+                        '&versionCode=' + $(this).attr("versionCode") +
+                        '&appSize=' + $(this).attr("appSize") +
+                        '&md5=' + $(this).attr("md5") +
+                        '&appUrl=' + $(this).attr("appUrl") +
+                        '&picUrl=' + $(this).attr("picUrl")
+                    ;
+
+                    var urlOpen = skyutil.getBoxUrlHeader() + 'open_apk?packageName=' + $(this).attr("packageName");
+                    if (text == "打开") {
+                        url = urlOpen;
+                    }
+                    //console.log(url);
+
+                    skyutil.doget(url, "", function (result) {
+                        //console.log("install : " + result);
+                        skyutil.printlnObj(result);
+                        if (result.status == 0) {
+                            // that.text("正在启动")
+
+                            if (text == "启动") {
+                                //下载次数加1
+                                updateDownLoadCount(appId);
+                            }
+
+                        } else {
+                            alertMsg('推送失败');
+                        }
+                    });
+                }
+
+            })
+        }
+
+        //下载次数加1
+        function updateDownLoadCount(appId) {
+            var updUrl = skyutil.getserver() + "/weixin-manager/api/ottMaster/proxyrequest.action?proxyurl=http%3a%2f%2fstore.skyworthbox.com%2fapprec%2ffront%2fupdateDownloadCount.action%3fappId%3d" + appId;
+            $.ajax({
+                url: updUrl,
+                dataType: 'jsonp',
+                success: function (result) {
+                },
+                error: function () {
+                    // $('#applist').html("发生错误");
+                    //SkyUtils.removeLoadMask()
+                }
+            });
+        }
+
+        function manualConnect() {
+            if ($('#inputip').val() == "") {
+                alertMsg('请输入盒子ip');
+                return;
+            }
+
+            skyutil.data = {};
+            skyutil.data.box = {};
+            skyutil.data.box.ip = $('#inputip').val();
+            skyutil.data.box.name = "盒子";
+            skyutil.data.box.port = 8080;
+            console.log("skyutil.data : " + skyutil.data);
+            console.log("skyutil.data.ip : " + skyutil.data.box.ip);
+            $("#title").text("正在连接" + skyutil.data.box.name + "-" + skyutil.data.box.ip);
+            //try to connect box
+            var boxip = skyutil.data.box.ip;
+            tryConnectBox(boxip);
+            needSearch = false;//手动连接时，不再继续自动搜索
+            showSearchPage();
+            setTimeout("showResetPage()", 15000);
+        }
+
+        function showManualConnectPage() {
+            if (!isBoxExisted) {
+                hideAllPage();
+                $("#manualConnectpage").show();
+            }
+        }
+
+        function showAppListPage() {
+            hideAllPage();
+            $("#applistPage").show();
+        }
+
+        function showSearchPage() {
+            hideAllPage();
+            $("#searchPage").show();
+        }
+
+        function hideAllPage() {
+            $("#resetPage").hide();
+            $("#initPage").hide();
+            $("#initPage2").hide();
+            $("#initPage3").hide();
+            $("#searchPage").hide();
+            $("#manualConnectpage").hide();
+            $("#applistPage").hide();
+        }
+
+        function tryConnectBox(boxip) {
+            var tmpurl = "http://" + boxip + ":8080/connect";
+            (function (boxip) {
+                $.ajax({
+                        url: tmpurl,
+                        type: "GET",
+                        dataType: 'jsonp',
+                        //jsonp: "callback",
+                        timeout: 60000,
+                        //返回Json类型
+                        contentType: "application/json;utf-8",
+                        //服务器段返回的对象包含name,data属性.
+                        success: function (result) {
+                            if (result.status == 0 && isBoxExisted != true) {//找到盒子
+                                skyutil.data = {};
+                                skyutil.data.box = {};
+                                skyutil.data.box.ip = boxip;
+                                skyutil.data.box.name = "盒子";
+                                skyutil.data.box.port = 8080;
+                                console.log("skyutil.data : " + skyutil.data);
+                                console.log("skyutil.data.ip : " + skyutil.data.box.ip);
+                                isBoxExisted = true; //找到盒子信息，表示用户的设备已经绑定到了盒子
+                                needSearch = false;
+                                $("#title").text("已连接" + skyutil.data.box.name + "-" + skyutil.data.box.ip);
+                                setCookie("boxip", skyutil.data.box.ip);
+                                //try to connect box
+                                skyutil.connect2();
+                                keepConnect();
+                                //隐藏掉所有搜索界面与引导界面，显示应用列表
+                                showAppListPage();
+                            }
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            //if timeout,next one
+                            count--;
+                        }
+                    }
+                );
+            }(boxip));
+        }
+
+        function connectOther() {
+            isBoxExisted = false;
+            showManualConnectPage();
+        }
+
+        function getUrlParam(name) {
+            var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)"); //构造一个含有目标参数的正则表达式对象
+            var r = window.location.search.substr(1).match(reg);  //匹配目标参数
+            if (r != null) return unescape(r[2]);
+            return null; //返回参数值
+        }
+    </script>
+
+</head>
+
+<body style="background:url(img/background.png)">
+<div id="resetPage" class="Absolute-Center" style="height:200px;display:none">
+    <h1>
+        <font color="#ffffff">抱歉，手机暂时无法连接上盒子。</font>
+    </h1>
+    <h1 style="margin-top:18px">
+        <font color="#ffffff">请把盒子拔掉电源，重新启动，再次尝试连接。</font>
+    </h1>
+    <p style="margin-top:80px">
+        <button style="width:90%;height:48px;margin-top:40px;font-size:20px;" class="solidbtn" onclick="hideResetPage()">好 的
+        </button>
+    </p>
+</div>
+<div id="initPage" class="Absolute-Center" style="height:200px;display:none;">
+    <h1>
+        <font color="#ffffff">为了确保成功安装软件</font>
+    </h1>
+    <h1 style="margin-top:18px">
+        <font color="#ffffff">请按照提示进行操作</font>
+    </h1>
+    <p style="margin-top:80px">
+        <button style="width:90%;height:48px;margin-top:40px;font-size:20px;" class="solidbtn" onclick="initPage2()">好
+            的
+        </button>
+    </p>
+</div>
+
+<div id="initPage2" class="Absolute-Center" style="height:600px;display:none;color:#ffffff">
+    <p style="margin-top:20px">
+        <img style="width:30%" src="img/01.png">
+    </p>
+    <h1 style="margin-top:20px">
+        在盒子里启动【微信互动】
+    </h1>
+    <p style="margin-top:5px">
+        打开App即可，无需扫描二维码
+    </p>
+    <p style="margin-top:18px">
+        <img style="width:40%" src="img/wechat.png">
+    </p>
+    <h1 style="margin-top:18px">
+        提示：
+    </h1>
+    <p style="margin-top:8px">
+        若无【微信互动】
+    </p>
+    <h3 style="margin-top:8px">
+        方法一
+    </h3>
+    <div style="font-size: 5px">
+        <p>
+            如果没有在【全部应用】中找到【微信互动】
+        </p>
+        <p>
+            可在【应用商店】App中下载
+        </p>
+    </div>
+    <h3 style="margin-top:8px">
+        方法二
+    </h3>
+    <p>
+        试试直接语音说：
+    </p>
+    <div style="font-size: 5px">
+        <p>
+            "打开微信互动"
+        </p>
+        <p>
+            "应用新玩法"
+        </p>
+        <p>
+            "下载更多应用"
+        </p>
+        <p>
+            "更多精彩应用"
+        </p>
+    </div>
+    <p style="margin-top:10px">
+        <button style="width:90%;height:48px;margin-top:40px;font-size:20px;" class="solidbtn" onclick="initPage3()">
+            下一步
+        </button>
+    </p>
+</div>
+
+<div id="initPage3" class="Absolute-Center" style="height:500px;display:none">
+    <p style="margin-top:12px">
+        <img style="width:30%" src="img/02.png">
+    </p>
+    <h1 style="margin-top:40px">
+        <font color="#ffffff">确保手机与盒子连接同一网络</font>
+    </h1>
+    <p style="margin-top:40px">
+        <img style="width:70%" src="img/wifi.png">
+    </p>
+    <p>
+        <button style="width:90%;height:48px;margin-top:40px;padding-bottom:40px;font-size:20px;" class="solidbtn" onclick="init()">下一步
+        </button>
+    </p>
+</div>
+
+
+<div id="searchPage" class="Absolute-Center" style="height:150px;display:none">
+    <div>
+        <img style="display: inline-block;vertical-align: middle;" src="img/loading.gif">
+        <span style="display: inline-block;vertical-align: middle;color:#ffffff;font-size:25px">请稍等片刻...</span>
+    </div>
+</div>
+
+<div id="manualConnectpage" class="Absolute-Center" style="height:500px;display:none">
+    <div id="inputbox">
+        <p style="margin-top:12px">
+            <img style="width:30%" src="img/03.png">
+        </p>
+        <h1 style="margin-top:18px">
+            <font color="#ffffff">输入盒子的IP地址</font>
+        </h1>
+        <input id="inputip" type="text" class="solidbtn" style="margin-top:40px;width:80%">
+        <h2 style="margin-top:18px">
+            <font color="#ffffff">如何找到盒子的IP信息：</font>
+        </h2>
+        <h2 style="margin-top:18px">
+            <font color="#ffffff">长按盒子遥控器的【菜单键 <img style="margin-top:-5px;width:20px;display: inline-block;vertical-align: middle;" src="img/button.png"> 】</font>
+        </h2>
+        <h2 style="margin-top:18px">
+            <font color="#ffffff">进入【系统设置】->【关于本机】</font>
+        </h2>
+        <h2 style="margin-top:18px">
+            <font color="#ffffff">->【产品信息】->【IP地址】</font>
+        </h2>
+        <p>
+            <button onclick="manualConnect()" class="solidbtn" style="width:90%;height:48px;margin-top:40px;font-size:20px;">连接盒子
+            </button>
+        </p>
+    </div>
+</div>
+
+<div class="applist" id="applistPage">
+    <ul id="applist">
+        <li style="height:45px;border-top:0px;">
+            <div class="info" style="width: 100%; float: none;">
+                <div>
+                    <label id="title" class="title" onclick="connectOther()">连接盒子，即刻享受精彩内容</label>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+</body>
+
+</html>
