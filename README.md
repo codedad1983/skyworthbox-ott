@@ -1,5 +1,8 @@
 # skyworthbox-ott
-https://account.skyworthbox.com/weixin-manager/weixinInteraction/appList.html
+https://account.skyworthbox.com/weixin-manager/weixinInteraction/appList.html?boxip=192.168.50.117
+https://account.skyworthbox.com/weixin-manager/weixinInteraction/mainMenu.html?boxip=192.168.50.117
+https://account.skyworthbox.com/weixin-manager/weixinInteraction/upload.html?boxip=192.168.50.117
+https://account.skyworthbox.com/weixin-manager/weixinInteraction/control/index.html?boxip=192.168.50.117
 
 ```
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
