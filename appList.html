@@ -189,6 +189,7 @@
 
             skyutil.doget(tempUrl, "", function (result) {
                 processXML(result.data);
+                setInterval("getAppStasus()", 1000);
             }, function () {
                 console.log("failed retry");
                 setTimeout("getList()", 2000);
@@ -230,7 +231,7 @@
             })
             //$('#applist').html(buff.join(''));
             $("#applist").append(buff.join(''));
-            setInterval("getAppStasus()", 1000);
+            
 
             addClickListener();
         }
